@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:01:39 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/24 08:28:35 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/24 20:23:10 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,21 +56,21 @@ volatile t_signal	g_signal_data;
 
 void	sigusr1_handler(int sig, siginfo_t *info, void *ucontext)
 {
+	g_signal_data.sigusr_bit = 0;
+	g_signal_data.arrived = 1;
+	g_signal_data.ack_target_pid = info->si_pid;
 	(void)sig;
 	(void)ucontext;
-	g_signal_data.sigusr_number = 1;
-	g_signal_data.arrived = 1;
-	g_signal_data.response_target_pid = info->si_pid;
 	return ;
 }
 
 void	sigusr2_handler(int sig, siginfo_t *info, void *ucontext)
 {
+	g_signal_data.sigusr_bit = 1;
+	g_signal_data.arrived = 1;
+	g_signal_data.ack_target_pid = info->si_pid;
 	(void)sig;
 	(void)ucontext;
-	g_signal_data.sigusr_number = 2;
-	g_signal_data.arrived = 1;
-	g_signal_data.response_target_pid = info->si_pid;
 	return ;
 }
 
@@ -78,24 +78,39 @@ int	main(void)
 {
 	struct sigaction	sa1;
 	struct sigaction	sa2;
+	static t_message	message;
 
-	printf("Minitalk Server PID: %d\n", getpid());
 	if (init_signal_handlers(&sa1, &sa2) != 0)
 	{
 		return (1);
 	}
 	sigaction(SIGUSR1, &sa1, NULL);
 	sigaction(SIGUSR2, &sa2, NULL);
+	init_message(&message);
+	printf("Minitalk Server PID: %d\n", getpid()); // TODO: replace with FT-version
 	while (1)
 	{
 		if (g_signal_data.arrived == 1)
 		{
 			g_signal_data.arrived = 0;
-			printf("sig %i from PID %d\n", g_signal_data.sigusr_number, (int)g_signal_data.response_target_pid);
+			printf("sig-bit %i from PID %d\n", g_signal_data.sigusr_bit, (int)g_signal_data.ack_target_pid);
+			signal_parser(&message);
+//			signal_ack();
 		}
 		pause();
 	}
 	return (0);
+}
+
+void	signal_parser(t_message	*message)
+{
+	if (message->len_counter)
+	{
+		message->msg_len = (message->msg_len << 1) | g_signal_data.sigusr_bit;
+		message->len_counter--;
+		printf("msg_len: %lu, len_counter %u\n", message->msg_len, message->len_counter);
+	}
+	return ;
 }
 
 int	init_signal_handlers(struct sigaction *sa1, struct sigaction *sa2)
@@ -114,4 +129,10 @@ int	init_signal_handlers(struct sigaction *sa1, struct sigaction *sa2)
 	errors += sigaddset(&sa2->sa_mask, SIGUSR2);
 	sa2->sa_flags = SA_SIGINFO;
 	return (errors);
+}
+void	init_message(t_message *message)
+{
+	message->len_counter = sizeof(size_t) * 8;
+	printf("len_counter init to value %u\n", message->len_counter);
+	return ;
 }
