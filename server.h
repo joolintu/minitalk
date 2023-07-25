@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:04:09 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/24 20:12:52 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/25 03:03:55 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,7 @@
 # include <unistd.h>
 # include <stdio.h>
 # include <signal.h>
-
-typedef struct s_signal
-{
-	sig_atomic_t	arrived;
-	sig_atomic_t	sigusr_bit;
-	sig_atomic_t	ack_target_pid;
-}					t_signal;
-
-typedef struct s_message
-{
-	unsigned char	len_counter;
-//	unsigned char	cont_counter;
-	size_t			msg_len;
-//	unsigned char	msg_continue;
-	char			*msg_string;
-}					t_message;
+# include "minitalk.h"
 
 int		main(void);
 int		init_signal_handlers(struct sigaction *sa1, struct sigaction *sa2);
