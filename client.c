@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:08:45 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/25 03:22:06 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/27 07:38:32 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ volatile t_client_state g_client_state;
 
 int	main(int argc, char	*argv[])
 {
-	t_message	client_message;
+	t_server_state	client_message;
 	
 	if (!parse_inputs(argc, argv))
 	{

@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:08:45 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/26 03:28:29 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/27 08:41:38 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ volatile t_client_state g_client_state;
 
 void	sigusr_handler(int sig, siginfo_t *info, void *ucontext)
 {
-//	printf(" ACK incoming\n");
 	g_client_state.ack_ok = 1;
 	(void)sig;
 	(void)ucontext;
@@ -50,8 +49,10 @@ void	sigusr_handler(int sig, siginfo_t *info, void *ucontext)
 
 int	main(int argc, char	*argv[])
 {
-	t_message	client_message;
+	t_server_state	client_message;
 	struct sigaction	sa;
+
+	init_signal_handlers(&sa);
 
 	sa.sa_sigaction = sigusr_handler;
 	sigemptyset(&sa.sa_mask);
@@ -66,13 +67,11 @@ int	main(int argc, char	*argv[])
 	// 	return (1);
 	// }
 
-	client_message.msg_len = 1023;
+	client_message.msg_len = 15;
 	client_message.len_counter = sizeof(size_t) * 8;
 	g_client_state.server_pid = atoi(argv[1]);
 	g_client_state.ack_ok = 1;
 
-	size_t	bitmask;
-	bitmask = -1;
 	unsigned char signal;
 
 	while (1)
@@ -80,7 +79,7 @@ int	main(int argc, char	*argv[])
 		if (g_client_state.ack_ok)
 		{
 			g_client_state.ack_ok = 0;
-			if (client_message.len_counter >= 0)
+			if (client_message.len_counter > 0)
 			{
 				signal = (client_message.msg_len >> client_message.len_counter - 1) & 1;
 //				printf("sig %i, len_counter %i\n", signal, client_message.len_counter);
@@ -92,12 +91,12 @@ int	main(int argc, char	*argv[])
 				{
 					kill(g_client_state.server_pid, SIGUSR2);
 				}
+				client_message.len_counter--;
 				if (client_message.len_counter == 0)
 				{
 					printf("Length sent.\n");
-					break;
+//					break;
 				}
-				client_message.len_counter--;
 			}
 		}
 	}
@@ -119,5 +118,7 @@ int	parse_inputs(int argc, char	*argv[])
 	return (0);
 }
 
-
-
+int	init_signal_handlers(struct sigaction *sa)
+{
+	return (0);
+}

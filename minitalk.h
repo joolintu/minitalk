@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/25 03:01:53 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/25 03:03:42 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/27 07:42:34 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include <unistd.h>
 # include <stdio.h>
 # include <signal.h>
+# include <stdlib.h>
 
 typedef struct s_signal
 {
@@ -23,14 +24,13 @@ typedef struct s_signal
 	sig_atomic_t	ack_target_pid;
 }					t_signal;
 
-typedef struct s_message
+typedef struct s_server_state
 {
 	unsigned char	len_counter;
-//	unsigned char	cont_counter;
+	pid_t			ack_target_pid;
 	size_t			msg_len;
-//	unsigned char	msg_continue;
 	char			*msg_string;
-}					t_message;
+}					t_server_state;
 
 typedef struct s_client_state
 {
