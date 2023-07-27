@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:01:39 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/27 07:56:32 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/27 19:23:56 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int	main(void)
 {
 	struct sigaction	sa1;
 	struct sigaction	sa2;
-	static t_server_state	message;
+	static t_msg_params	message;
 
 	if (init_signal_handlers(&sa1, &sa2) != 0)
 	{
@@ -102,7 +102,7 @@ int	main(void)
 	return (0);
 }
 
-void	parse_length(t_server_state	*message)
+void	parse_length(t_msg_params	*message)
 {
 	if (message->len_counter)
 	{
@@ -130,7 +130,7 @@ int	init_signal_handlers(struct sigaction *sa1, struct sigaction *sa2)
 	sa2->sa_flags = SA_SIGINFO;
 	return (errors);
 }
-void	init_message(t_server_state *message)
+void	init_message(t_msg_params *message)
 {
 	message->len_counter = sizeof(size_t) * 8;
 	printf("len_counter init to value %u\n", message->len_counter);

@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/26 01:02:50 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/27 08:46:23 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/28 01:29:17 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,76 +48,136 @@ int	main(void)
 	struct sigaction	saf;
 	struct sigaction	sa1;
 	struct sigaction	sa2;
-	static t_server_state	message;
+	static t_msg_params	msg_params;
 
 	if (init_signal_handlers(&sa1, &sa2, &saf) != 0)
 	{
 		return (1);
 	}
-	init_message(&message);
+	init_message(&msg_params);
 	printf("Minitalk TEST Server PID: %d\n", getpid()); // TODO: replace with FT-version
 	while (1)
 	{
-		parse_client_pid(&message, &sa1);
-		parse_length(&message);
-		parse_string(&message);
-		put_string(&message);
-		init_message(&message);
+		parse_client_pid(&msg_params, &sa1);
+		parse_length(&msg_params);
+		parse_string(&msg_params);
+		put_string(&msg_params);
+		init_message(&msg_params);
 		reset_first_handler(&saf); // This could be inside init_message?
 	}
 	return (0);
 }
 
-void	parse_client_pid(t_server_state *message, struct sigaction *sa1)
+void	parse_client_pid(t_msg_params *msg_params, struct sigaction *sa1)
 {
+	printf("Ready to parse client PID\n");
 	while (1)
 	{
 		if (g_signal_data.arrived)
 		{
 			g_signal_data.arrived = 0;
-			message->ack_target_pid = g_signal_data.ack_target_pid;
-			printf("Set ACK target PID to %i\n", message->ack_target_pid);
+			msg_params->other_end_pid = g_signal_data.ack_target_pid;
+			printf("Set ACK target PID to %i\n", msg_params->other_end_pid);
 			sigaction(SIGUSR1, sa1, NULL);
 			printf("Set signal handler of SIGUSR1 to sa1\n");
-			kill(message->ack_target_pid, SIGUSR1);
+			kill(msg_params->other_end_pid, SIGUSR1);
 			break;
 		}
 	}
 	return ;
 }
 
-void	parse_length(t_server_state	*message)
+void	parse_length(t_msg_params	*msg_params)
 {
-	printf("Receive and parse message length\n");
+	printf("Receive and parse msg_params length\n");
 	
-	while (message->len_counter >= 0)
+	while (msg_params->len_counter > 0)
 	{
 		if (g_signal_data.arrived == 1)
 		{
 			printf("%i", (int)g_signal_data.sigusr_bit);
-			message->msg_len = (message->msg_len << 1) | g_signal_data.sigusr_bit;
-			message->len_counter--;
+			msg_params->msg_len = (msg_params->msg_len << 1) | g_signal_data.sigusr_bit;
+			msg_params->len_counter--;
 			g_signal_data.arrived = 0;
 
-			if (message->len_counter == 0)
+			if (msg_params->len_counter == 0)
 			{
-				printf("\nReceived length: %lu\n", message->msg_len);
-				message->msg_string = (char *)malloc(sizeof(char) * message->msg_len + 1);
-				printf("Mallocd %lu + 1 for msg_string.\n", message->msg_len);
+				printf("\nReceived length: %lu\n", msg_params->msg_len);
+				msg_params->msg_string = (char *)malloc(sizeof(char) * msg_params->msg_len + 1);
+				printf("Mallocd %lu + 1 for msg_string.\n", msg_params->msg_len);
 			}
 			kill(g_signal_data.ack_target_pid, SIGUSR1);
 		}
-
 	}
 	return ;
 }
-void	parse_string(t_server_state *message)
+void	parse_string(t_msg_params *msg_params)
 {
+	printf("Parse string\n");
+	printf("msg_len: %lu, len_count: %lu, pid: %i, ack: %i\n", msg_params->msg_len, msg_params->len_counter, msg_params->other_end_pid, msg_params->ack_ok);
 
+	size_t	i;
+	char	c;
+
+	if (!msg_params->msg_string)
+	{
+		printf("ERROR: Message string NULL\n");
+	}
+
+	i = 0;
+	c = 0;
+	while (msg_params->msg_len)
+	{
+		c = parse_char(&msg_params);
+		printf("got char %c\n", c);
+		msg_params->msg_string[i] = c;
+		msg_params->msg_len--;
+		i++;
+	}
+	printf("Receiving null terminator\n");
+	c = parse_char(&c);
+	msg_params->msg_string[i] = '\0';
+
+	printf("Transmission complete.\n");
+
+	return ;
 }
-void	put_string(t_server_state *message)
-{
 
+char	parse_char(t_msg_params	*msg_params)
+{
+	printf("Parsing char...");
+
+	int	shift;
+	char	c;
+
+	shift = 7;
+	c = 0;
+	while (shift >= 0)
+	{
+		if (g_signal_data.arrived == 1)
+		{
+			g_signal_data.arrived = 0;
+			if (g_signal_data.sigusr_bit)
+			{
+				printf("1");
+			}
+			else 
+			{
+				printf("0");
+			}
+			c = c | g_signal_data.sigusr_bit << shift;
+			shift--;
+			kill(g_signal_data.ack_target_pid, SIGUSR1);
+		}
+	}
+
+	printf(" returning \'%i\'\n", (int)c);
+	return (c);
+}
+void	put_string(t_msg_params *msg_params)
+{
+	printf("Put string\n");
+	printf("%s\n", msg_params->msg_string);
 }
 
 void	reset_first_handler(struct sigaction *saf)
@@ -153,22 +213,22 @@ int	init_signal_handlers(struct sigaction *sa1, struct sigaction *sa2, struct si
 	errors += -(sigaction(SIGUSR2, sa2, NULL));
 	return (errors);
 }
-void	init_message(t_server_state *message)
+void	init_message(t_msg_params *msg_params)
 {
-	message->ack_target_pid = 0;
-	message->len_counter = sizeof(size_t) * 8;
-	printf("len_counter init to value (size_t * 8 bits): %u\n", message->len_counter);
+	msg_params->other_end_pid = 0;
+	msg_params->len_counter = sizeof(size_t) * 8;
+	printf("len_counter init to value (size_t * 8 bits): %lu\n", msg_params->len_counter);
 
-	if (message->msg_string)
+	if (msg_params->msg_string)
 	{
-		free(message->msg_string);
+		free(msg_params->msg_string);
 		printf("Called free() on previous msg_string\n");
 	}
-	message->msg_string = NULL;
-	printf("msg_string init to %s\n", message->msg_string);
-	if (message->msg_len)
+	msg_params->msg_string = NULL;
+	printf("msg_string init to %s\n", msg_params->msg_string);
+	if (msg_params->msg_len)
 	{
-		message->msg_len = 0;
+		msg_params->msg_len = 0;
 		printf("msg_len init to 0\n");
 	}
 	return ;
