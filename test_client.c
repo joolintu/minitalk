@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:08:45 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/27 21:54:05 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/28 03:04:13 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
 	if (validate_and_parse_inputs(argc, argv))
 	{
-		printf("Validation error\n");
+		printf("Correct usage: ./client PID \"String to be sent to server\"\n");
 		return (1);
 	}
 	init_signal_handlers(&sa);
@@ -77,12 +77,20 @@ int validate_and_parse_inputs(int argc, char *argv[])
 	if (argc != 3)
 	{
 		printf("Incorrect number of arguments\n");
-		printf("Correct usage: ./client PID \"String to be sent to server\"\n");
 		return (1);
 	}
-
+	g_client_params.other_end_pid = (pid_t)atoi(argv[1]); // TODO ft_atoi
+	if (g_client_params.other_end_pid <= 1 )
+	{
+		printf("Incorrect process ID. Don\'t do that please.\n");
+		return (2);
+	}
+	if (kill(g_client_params.other_end_pid, 0))
+	{
+		printf("Error sending signal to Process ID %i\n", g_client_params.other_end_pid);
+		return (3);
+	}
 	g_client_params.len_counter = sizeof(size_t) * 8;
-	g_client_params.other_end_pid = (pid_t)atoi(argv[1]);
 	g_client_params.msg_len = strlen(argv[2]);
 	g_client_params.msg_string = argv[2];
 	g_client_params.ack_ok = 1;

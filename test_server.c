@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/26 01:02:50 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/28 01:29:17 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/28 02:59:57 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ volatile t_signal	g_signal_data;
 void	sigfirst_handler(int sig, siginfo_t *info, void *ucontext)
 {
 	g_signal_data.arrived = 1;
-	g_signal_data.ack_target_pid = info->si_pid;
+	g_signal_data.other_end_pid = info->si_pid;
 	(void)sig;
 	(void)ucontext;
 	return ;
@@ -76,7 +76,7 @@ void	parse_client_pid(t_msg_params *msg_params, struct sigaction *sa1)
 		if (g_signal_data.arrived)
 		{
 			g_signal_data.arrived = 0;
-			msg_params->other_end_pid = g_signal_data.ack_target_pid;
+			msg_params->other_end_pid = g_signal_data.other_end_pid;
 			printf("Set ACK target PID to %i\n", msg_params->other_end_pid);
 			sigaction(SIGUSR1, sa1, NULL);
 			printf("Set signal handler of SIGUSR1 to sa1\n");
@@ -106,7 +106,7 @@ void	parse_length(t_msg_params	*msg_params)
 				msg_params->msg_string = (char *)malloc(sizeof(char) * msg_params->msg_len + 1);
 				printf("Mallocd %lu + 1 for msg_string.\n", msg_params->msg_len);
 			}
-			kill(g_signal_data.ack_target_pid, SIGUSR1);
+			kill(g_signal_data.other_end_pid, SIGUSR1);
 		}
 	}
 	return ;
@@ -167,7 +167,7 @@ char	parse_char(t_msg_params	*msg_params)
 			}
 			c = c | g_signal_data.sigusr_bit << shift;
 			shift--;
-			kill(g_signal_data.ack_target_pid, SIGUSR1);
+			kill(g_signal_data.other_end_pid, SIGUSR1);
 		}
 	}
 
