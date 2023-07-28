@@ -5,134 +5,90 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/22 18:01:39 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/27 19:23:56 by jlintune         ###   ########.fr       */
+/*   Created: 2023/07/26 01:02:50 by jlintune          #+#    #+#             */
+/*   Updated: 2023/07/28 04:28:38 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-/*
-	PROTOCOL OUTLINES
-	1) HEADER
-	- MESSAGE SIZE, in chars, sizeof(int) (24 bits)
-	- CONTINUE in next batch, 1 bit
-	- PARITY, 1 bit
-	2) MESSAGE
-	- RESEND FLAG, 1 bit
-	- DATA, 8 bits
-	- PARITY, 1 bit
-*/
-
-/*
-	TRANSMIT STATE, enum
-	INIT -1,
-	RESEND FLAG 0,
-	DATA 1,
-	PARITY FLAG 2.
-
-	stage = ++stage % 3
-*/
-
-/*
-	Allowed stuff:
-	- write
-	- ft_printf
-	- signal
-	- sigemptyset
-	- sigaddset
-	- sigaction
-	- kill
-	- getpid
-	- malloc
-	- free
-	- pause
-	- sleep
-	- usleep
-	- exit
-*/
-
+#include "minitalk.h"
 #include "server.h"
 
 volatile t_signal	g_signal_data;
 
-void	sigusr1_handler(int sig, siginfo_t *info, void *ucontext)
-{
-	g_signal_data.sigusr_bit = 0;
-	g_signal_data.arrived = 1;
-	g_signal_data.ack_target_pid = info->si_pid;
-	(void)sig;
-	(void)ucontext;
-	return ;
-}
-
-void	sigusr2_handler(int sig, siginfo_t *info, void *ucontext)
-{
-	g_signal_data.sigusr_bit = 1;
-	g_signal_data.arrived = 1;
-	g_signal_data.ack_target_pid = info->si_pid;
-	(void)sig;
-	(void)ucontext;
-	return ;
-}
-
 int	main(void)
 {
+	struct sigaction	saf;
 	struct sigaction	sa1;
 	struct sigaction	sa2;
-	static t_msg_params	message;
+	static t_msg_params	msg_params;
 
-	if (init_signal_handlers(&sa1, &sa2) != 0)
+	if (init_signal_handlers(&sa1, &sa2, &saf) != 0)
 	{
 		return (1);
 	}
-	sigaction(SIGUSR1, &sa1, NULL);
-	sigaction(SIGUSR2, &sa2, NULL);
-	init_message(&message);
-	printf("Minitalk Server PID: %d\n", getpid()); // TODO: replace with FT-version
+	init_message(&msg_params);
+	printf("Minitalk TEST Server PID: %d\n", getpid()); //REPLACE
 	while (1)
 	{
-		if (g_signal_data.arrived == 1)
-		{
-			g_signal_data.arrived = 0;
-			printf("sig-bit %i from PID %d\n", g_signal_data.sigusr_bit, (int)g_signal_data.ack_target_pid);
-			parse_length(&message);
-//			signal_ack();
-		}
-		pause();
+		parse_client_pid(&msg_params, &sa1);
+		parse_length(&msg_params);
+		parse_string(&msg_params);
+		put_string(&msg_params);
+		init_message(&msg_params);
+		reset_first_handler(&saf);
 	}
 	return (0);
 }
 
-void	parse_length(t_msg_params	*message)
+void	put_string(t_msg_params *msg_params)
 {
-	if (message->len_counter)
-	{
-		message->msg_len = (message->msg_len << 1) | g_signal_data.sigusr_bit;
-		message->len_counter--;
-		printf("msg_len: %lu, len_counter %u\n", message->msg_len, message->len_counter);
-	}
-	return ;
+	printf("%s\n", msg_params->msg_string);
 }
 
-int	init_signal_handlers(struct sigaction *sa1, struct sigaction *sa2)
+void	reset_first_handler(struct sigaction *saf)
+{
+	sigaction(SIGUSR1, saf, NULL);
+}
+
+int	init_signal_handlers(struct sigaction *sa1, 
+						struct sigaction *sa2, 
+						struct sigaction *saf)
 {
 	int	errors;
 
 	errors = 0;
+	saf->sa_sigaction = sigfirst_handler;
+	errors += sigemptyset(&saf->sa_mask);
+	errors += sigaddset(&saf->sa_mask, SIGUSR1);
+	errors += sigaddset(&saf->sa_mask, SIGUSR2);
+	saf->sa_flags = SA_SIGINFO;
 	sa1->sa_sigaction = sigusr1_handler;
 	errors += sigemptyset(&sa1->sa_mask);
 	errors += sigaddset(&sa1->sa_mask, SIGUSR1);
 	errors += sigaddset(&sa1->sa_mask, SIGUSR2);
 	sa1->sa_flags = SA_SIGINFO;
 	sa2->sa_sigaction = sigusr2_handler;
-	errors += sigemptyset(&sa1->sa_mask);
+	errors += sigemptyset(&sa2->sa_mask);
 	errors += sigaddset(&sa2->sa_mask, SIGUSR1);
 	errors += sigaddset(&sa2->sa_mask, SIGUSR2);
 	sa2->sa_flags = SA_SIGINFO;
+	errors += -(sigaction(SIGUSR1, saf, NULL));
+	errors += -(sigaction(SIGUSR2, sa2, NULL));
 	return (errors);
 }
-void	init_message(t_msg_params *message)
+
+void	init_message(t_msg_params *msg_params)
 {
-	message->len_counter = sizeof(size_t) * 8;
-	printf("len_counter init to value %u\n", message->len_counter);
+	msg_params->other_end_pid = 0;
+	msg_params->len_counter = sizeof(size_t) * 8;
+	if (msg_params->msg_string)
+	{
+		free(msg_params->msg_string);
+	}
+	msg_params->msg_string = NULL;
+	if (msg_params->msg_len)
+	{
+		msg_params->msg_len = 0;
+	}
 	return ;
 }
