@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 04:14:08 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/31 22:34:34 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 22:59:06 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,11 @@ void	parse_length(t_msg_params	*msg_params)
 			{
 				msg_params->msg_string
 					= (char *)malloc(sizeof(char) * msg_params->msg_len + 1);
-				// PROTECT this malloc
+				if (msg_params->msg_string == NULL)
+				{
+					ft_printf("Malloc error, exiting...\n");
+					exit(EXIT_FAILURE);
+				}
 			}
 			kill(g_signal_data.other_end_pid, SIGUSR1);
 		}

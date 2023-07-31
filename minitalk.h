@@ -6,15 +6,14 @@
 /*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/25 03:01:53 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/31 22:24:12 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 23:02:48 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINITALK_H
 # define MINITALK_H
-# include <unistd.h> // getpid
+# include <unistd.h> // getpid, NULL
 # include <signal.h> // sigaction, t_siginfo
-# include <stdlib.h>
 # include "./Libft/libft.h"
 
 typedef struct s_signal
