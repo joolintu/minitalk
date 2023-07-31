@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server_parsers.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 04:14:08 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/28 04:29:29 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 22:34:34 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,13 @@ void	parse_length(t_msg_params	*msg_params)
 	{
 		if (g_signal_data.arrived == 1)
 		{
-			msg_params->msg_len 
+			msg_params->msg_len
 				= (msg_params->msg_len << 1) | g_signal_data.sigusr_bit;
 			msg_params->len_counter--;
 			g_signal_data.arrived = 0;
 			if (msg_params->len_counter == 0)
 			{
-				msg_params->msg_string 
+				msg_params->msg_string
 					= (char *)malloc(sizeof(char) * msg_params->msg_len + 1);
 				// PROTECT this malloc
 			}
@@ -58,7 +58,7 @@ void	parse_string(t_msg_params *msg_params)
 
 	if (!msg_params->msg_string)
 	{
-		printf("ERROR: Message string NULL\n"); // REPLACE
+		ft_printf("ERROR: Message string NULL\n");
 	}
 	i = 0;
 	c = 0;

@@ -6,7 +6,7 @@
 #    By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/26 19:39:43 by jlintune          #+#    #+#              #
-#    Updated: 2023/07/31 21:00:00 by jlintune         ###   ########.fr        #
+#    Updated: 2023/07/31 21:32:36 by jlintune         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,8 +19,6 @@ LIBFLAGS = -L$(LIB_DIR) -lft
 
 SERVER_TARGET = server
 CLIENT_TARGET = client
-TEST_SERVER = test_$(SERVER_TARGET)
-TEST_CLIENT = test_$(CLIENT_TARGET)
 
 SERVER_SRCS = server.c server_parsers.c server_handlers.c
 CLIENT_SRCS = client.c client_senders.c
@@ -48,11 +46,11 @@ $(LIBRARY):
 
 clean:
 	$(MAKE) -C $(LIB_DIR) clean
-	/bin/rm -f $(SERVER_OBJS) $(CLIENT_OBJS) test_$(SERVER_OBJS) test_$(CLIENT_OBJS)
+	/bin/rm -f $(SERVER_OBJS) $(CLIENT_OBJS)
 
 fclean: clean
 	$(MAKE) -C $(LIB_DIR) fclean
-	/bin/rm -f $(SERVER_TARGET) $(CLIENT_TARGET) test_$(SERVER_TARGET) test_$(CLIENT_TARGET)
+	/bin/rm -f $(SERVER_TARGET) $(CLIENT_TARGET)
 
 re: fclean all
 

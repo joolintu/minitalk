@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/26 01:02:50 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/28 04:28:38 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 22:30:37 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	main(void)
 		return (1);
 	}
 	init_message(&msg_params);
-	printf("Minitalk TEST Server PID: %d\n", getpid()); //REPLACE
+	ft_printf("Minitalk TEST Server PID: %d\n", getpid());
 	while (1)
 	{
 		parse_client_pid(&msg_params, &sa1);
@@ -42,7 +42,7 @@ int	main(void)
 
 void	put_string(t_msg_params *msg_params)
 {
-	printf("%s\n", msg_params->msg_string);
+	ft_printf("%s\n", msg_params->msg_string);
 }
 
 void	reset_first_handler(struct sigaction *saf)
@@ -50,8 +50,8 @@ void	reset_first_handler(struct sigaction *saf)
 	sigaction(SIGUSR1, saf, NULL);
 }
 
-int	init_signal_handlers(struct sigaction *sa1, 
-						struct sigaction *sa2, 
+int	init_signal_handlers(struct sigaction *sa1,
+						struct sigaction *sa2,
 						struct sigaction *saf)
 {
 	int	errors;

@@ -6,14 +6,13 @@
 /*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/25 03:01:53 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/31 20:00:27 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 22:24:12 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINITALK_H
 # define MINITALK_H
 # include <unistd.h> // getpid
-# include <stdio.h>
 # include <signal.h> // sigaction, t_siginfo
 # include <stdlib.h>
 # include "./Libft/libft.h"

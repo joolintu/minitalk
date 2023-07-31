@@ -6,7 +6,7 @@
 /*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 04:18:27 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/31 19:20:02 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 22:32:42 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void	send_msg_length(void)
 		if (g_client_params.ack_ok)
 		{
 			g_client_params.ack_ok = 0;
-			signal = (g_client_params.msg_len 
+			signal = (g_client_params.msg_len
 					>> (g_client_params.len_counter - 1)) & 1;
 			if (signal == 0)
 			{
