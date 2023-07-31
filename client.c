@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/22 18:08:45 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/28 04:21:43 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 20:00:50 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int	validate_and_parse_inputs(int argc, char *argv[])
 		printf("Incorrect number of arguments\n"); //Replace
 		return (1);
 	}
-	g_client_params.other_end_pid = (pid_t)atoi(argv[1]); // TODO ft_atoi
+	g_client_params.other_end_pid = (pid_t)ft_atoi(argv[1]); // TODO ft_atoi
 	if (g_client_params.other_end_pid <= 1)
 	{
 		printf("Incorrect process ID. Don\'t do that please.\n"); //Replace
@@ -59,7 +59,7 @@ int	validate_and_parse_inputs(int argc, char *argv[])
 		return (3);
 	}
 	g_client_params.len_counter = sizeof(size_t) * 8;
-	g_client_params.msg_len = strlen(argv[2]); //Replace
+	g_client_params.msg_len = ft_strlen(argv[2]); //Replace
 	g_client_params.msg_string = argv[2];
 	g_client_params.ack_ok = 1;
 	return (0);
