@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minitalk.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/25 03:01:53 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/28 03:58:03 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 20:00:27 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <stdio.h>
 # include <signal.h> // sigaction, t_siginfo
 # include <stdlib.h>
+# include "./Libft/libft.h"
 
 typedef struct s_signal
 {

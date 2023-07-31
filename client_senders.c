@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client_senders.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jlintune <jlintune@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jlintune <jlintune@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/28 04:18:27 by jlintune          #+#    #+#             */
-/*   Updated: 2023/07/28 04:51:21 by jlintune         ###   ########.fr       */
+/*   Updated: 2023/07/31 19:20:02 by jlintune         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	send_msg_length(void)
 		{
 			g_client_params.ack_ok = 0;
 			signal = (g_client_params.msg_len 
-					>> g_client_params.len_counter - 1) & 1;
+					>> (g_client_params.len_counter - 1)) & 1;
 			if (signal == 0)
 			{
 				kill(g_client_params.other_end_pid, SIGUSR1);
